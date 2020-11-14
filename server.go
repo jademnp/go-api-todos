@@ -33,7 +33,7 @@ func query(filter string) (Todo,error) {
 	}
 	defer db.Close()
 
-		db.Prepare("SELECT id,title,status FROM todos WHERE status=$1")
+		stmt,err := db.Prepare("SELECT id,title,status FROM todos WHERE status=$1")
 		if err != nil {
 			log.Fatal("can't prepare statement", err)
 		}
@@ -48,32 +48,17 @@ func query(filter string) (Todo,error) {
 		return Todo{id,title,status},nil
 	
 }
-func queryAll(filter string) (Todo,error) {
+func queryAll() ([]Todo,error) {
 	db, err := sql.Open("postgres","postgres://ornvuxai:9GFXmiWs7r29tjJvN9HfkRsFfaigC47v@suleiman.db.elephantsql.com:5432/ornvuxai")
 	if err != nil {
 		log.Fatal("Connect to database error",err)
 	}
 	defer db.Close()
-	if filter != "" {
-		db.Prepare("SELECT id,title,status FROM todos WHERE status=$1")
-		if err != nil {
-			log.Fatal("can't prepare statement", err)
-		}
-		row := stmt.QueryRow(filter)
-		var id int
-		var title, status string
-		err = row.Scan(&id,&title,&status)
-		if err != nil {
-			log.Fatal("can't scan row into variable", err)
-		}
-		return Todo{id,title,status},nil
-	}else{
-		db.Prepare("SELECT id,title,status FROM todos")
-		if err != nil {
-			log.Fatal("can't prepare statement", err)
-		}
-		rows := stmt.Query()
+	stmt,err := db.Prepare("SELECT id,title,status FROM todos")
+	if err != nil {
+		log.Fatal("can't prepare statement", err)
 	}
+	rows := stmt.Query()
 	
 }
 func postTodoHandler(c *gin.Context)  {
@@ -92,12 +77,7 @@ func postTodoHandler(c *gin.Context)  {
 }
 func getTodoHandler(c *gin.Context)  {
 	status, ok := c.GetQuery("status")
-	if ok != nil {
-		rows, err := query("")
-	}
-	else{
-		rows, err := query(status)
-	}
+	
 }
 func main() {
 	r := gin.Default()
