@@ -12,7 +12,7 @@ type Todo struct {
 	Status string `json:"status"`
 }
 func insert(t Todo) (int, error) {
-	db, err := sql.Open("postgres","postgres://ornvuxai:9GFXmiWs7r29tjJvN9HfkRsFfaigC47v@suleiman.db.elephantsql.com:5432/ornvuxai")
+	db, err := sql.Open("postgres",os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Connect to database error",err)
 	}
@@ -27,7 +27,7 @@ func insert(t Todo) (int, error) {
 	return id,nil
 }
 func query(filter string) (Todo,error) {
-	db, err := sql.Open("postgres","postgres://ornvuxai:9GFXmiWs7r29tjJvN9HfkRsFfaigC47v@suleiman.db.elephantsql.com:5432/ornvuxai")
+	db, err := sql.Open("postgres",os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal("Connect to database error",err)
 	}
@@ -43,24 +43,24 @@ func query(filter string) (Todo,error) {
 		err = row.Scan(&id,&title,&status)
 		if err != nil {
 			log.Fatal("can't scan row into variable", err)
-			return nil,err
+			// return nil,err
 		}
 		return Todo{id,title,status},nil
 	
 }
-func queryAll() ([]Todo,error) {
-	db, err := sql.Open("postgres","postgres://ornvuxai:9GFXmiWs7r29tjJvN9HfkRsFfaigC47v@suleiman.db.elephantsql.com:5432/ornvuxai")
-	if err != nil {
-		log.Fatal("Connect to database error",err)
-	}
-	defer db.Close()
-	stmt,err := db.Prepare("SELECT id,title,status FROM todos")
-	if err != nil {
-		log.Fatal("can't prepare statement", err)
-	}
-	rows := stmt.Query()
+// func queryAll() ([]Todo,error) {
+// 	db, err := sql.Open("postgres",os.Getenv("DATABASE_URL"))
+// 	if err != nil {
+// 		log.Fatal("Connect to database error",err)
+// 	}
+// 	defer db.Close()
+// 	stmt,err := db.Prepare("SELECT id,title,status FROM todos")
+// 	if err != nil {
+// 		log.Fatal("can't prepare statement", err)
+// 	}
+// 	rows := stmt.Query()
 	
-}
+// }
 func postTodoHandler(c *gin.Context)  {
 	t := Todo{}
 	err := c.ShouldBindJSON(&t)
